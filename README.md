@@ -1,5 +1,6 @@
 # update_opencore
-
+www.youtube.com/@HackintoshAndBeyond
+discord.gg/5hvZ5u7QXQ
 Update-OC-EFI Script
 Este script foi desenvolvido para automatizar o processo de atualização do OpenCore, seus drivers e a mesclagem (merge) das novas chaves do Sample.plist com o seu config.plist em sistemas Hackintosh. Ele foi projetado para ser fácil de usar, seguro e eficiente, minimizando a intervenção manual do usuário.
 
