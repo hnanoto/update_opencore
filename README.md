@@ -91,3 +91,99 @@ Este script é fornecido "como está", sem garantia de qualquer tipo. O autor n�
 Contribuições:
 
 Contribuições para melhorar este script são bem-vindas! Sinta-se à vontade para fazer um fork do repositório, fazer as suas modificações e enviar um pull request.
+Em português 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# update_opencore
+www.youtube.com/@HackintoshAndBeyond
+
+[discord.gg/5hvZ5u7QXQ](https://discord.gg/5hvZ5u7QXQ)
+
+Update-OC-EFI Script
+This script was developed to automate the process of updating OpenCore, its drivers, and merging the new keys from Sample.plist with your config.plist on Hackintosh systems. It's designed to be easy to use, safe, and efficient, minimizing manual user intervention.
+
+Features:
+
+Intuitive Menu Interface: A simple and straightforward menu allows the user to easily choose the desired operation.
+Automatic EFI Partition Detection: The script automatically locates and identifies the EFI partitions mounted on the system.
+Automatic EFI Backup: Before making any changes, the script creates a full backup of the EFI folder in EFI-Backup-<date>-<time> on the EFI partition itself, allowing for easy rollback to a previous configuration in case of problems.
+OpenCore Download: Downloads the latest RELEASE or DEBUG version of OpenCore directly from the official Acidanthera repository on GitHub.
+Smart File Update:
+Replaces the files in the BOOT folder (BOOTx64.efi) and files in the OC folder (OpenCore.efi, .contentVisibility, and .contentFlavour).
+Preserves the original OC folder, including your config.plist, ACPI (custom SSDTs), Kexts (custom kexts), and Resources (themes, audio, etc.).
+Updates only the drivers enabled in your config.plist, avoiding overwriting unused drivers.
+Copies new drivers from the Drivers folder of the downloaded OpenCore to your EFI/OC/Drivers folder if you have any new drivers listed in your config.plist.
+Merging of New Keys: Automatically adds new keys from the Sample.plist (from the downloaded OpenCore version) to your config.plist, preserving existing settings and adding any new options introduced in newer OpenCore versions.
+config.plist Validation: Uses ocvalidate (official OpenCore tool) to verify the integrity of the config.plist after modifications, alerting about potential errors.
+Temporary File Cleanup: Removes downloaded temporary files after the update process is complete.
+Detailed Logging: Generates a log file (update_opencore_<date>-<time>.log) with detailed information about each step of the process, making it easier to identify issues.
+How to Use:
+
+Download: Download the update_opencore.py script from your GitHub repository.
+Unzip the ZIP file: Unzip the downloaded ZIP file to an easily accessible location, such as the Downloads folder.
+Terminal: Open Terminal (Applications -> Utilities -> Terminal).
+Navigate to the Directory: Use the cd command to navigate to the directory where you unzipped the file, for example:
+cd /Users/your_username/Downloads
+Use code with caution.
+Bash
+Make the Script Executable: Run the following command to give the script execute permission:
+chmod +x update_opencore.py
+Use code with caution.
+Bash
+Run the Script with Administrator Privileges: Run the script with sudo:
+sudo python3 update_opencore.py
+Use code with caution.
+Bash
+Enter your administrator password when prompted.
+Follow the Menu Instructions: The script will display a menu with the following options:
+1. Update OpenCore (RELEASE): Downloads and installs the latest RELEASE version of OpenCore.
+2. Update OpenCore (DEBUG): Downloads and installs the latest DEBUG version of OpenCore.
+3. Update drivers only: Updates only the drivers in the EFI/OC/Drivers folder, keeping the current OpenCore version.
+4. Add new keys to config.plist: Adds new keys from Sample.plist to your config.plist without updating OpenCore or drivers.
+5. Exit: Exits the script.
+Choose the Desired Option: Enter the number corresponding to the desired option and press Enter.
+Select the EFI Partition: The script will list the EFI partitions found. Enter the number corresponding to the EFI partition where OpenCore is installed and press Enter.
+Confirmation: The script will display a summary of the operations to be performed. Confirm if you want to proceed or abort the operation.
+Wait for Completion: The script will perform the selected operations. Wait for the completion message.
+Prerequisites:
+
+Python 3: The script requires Python 3 to run. macOS comes with Python 3 installed by default.
+Internet Connection: The script requires an active internet connection to download the latest versions of OpenCore.
+curl: Used to download files. It comes pre-installed on macOS.
+unzip: Used to unzip files. It comes pre-installed on macOS.
+PlistBuddy: Used to manipulate .plist files. It comes pre-installed on macOS.
+ocvalidate: (Optional, but recommended) Official OpenCore tool to validate config.plist. The script checks if ocvalidate is present in the downloaded OpenCore package. If not found, validation will be skipped.
+Installing dependencies on macOS (if necessary):
+
+Python 3:
+Instructions for installing Python 3 on macOS can be found on the internet. Homebrew is a recommended package manager for easy installation (brew install python3).
+Other dependencies: Since curl, unzip, and PlistBuddy are already installed by default on macOS, you usually don't need to install them separately.
+Possible Issues and Solutions:
+
+ModuleNotFoundError: No module named 'requests': This means that the requests module for Python is not installed.
+Solution: Install the requests module using pip:
+sudo python3 -m pip install requests
+Use code with caution.
+Bash
+ocvalidate errors: The ocvalidate is an essential tool that comes inside the package of the OpenCore on the Utilities folder, the script will look for this tool inside the temporary folder where the new OpenCore is downloaded, if it doesn't find it, it will skip the validation.
+IndentationError: Indicates an error in the Python code indentation.
+Solution: Check that the code indentation is correct, using 4 spaces for each indentation level. Make sure you are not mixing spaces and tabs.
+No such file or directory: Means the script is trying to access a file or directory that does not exist.
+Solution: Check that the path to the file or directory is correct and that the file or directory actually exists in the specified location. Make sure you have extracted the contents of the OpenCore ZIP file correctly.
+Permission denied: Means the script does not have permission to access a file or directory.
+Solution: Make sure the script is being run with administrator privileges (using sudo). Check the permissions of the file or directory and, if necessary, change them using the chmod command.
+[Errno 28] No space left on device: Means the script is trying to write data to a storage device that is out of space.
+Solution: The script has been modified to create backups inside the EFI partition, which should solve the problem. If for some reason you need more space on the EFI partition, you will need to resize it, but this is not recommended to do with this script, as it is an advanced procedure.
+Errors in config.plist: If ocvalidate reports errors in your config.plist, you will need to fix them manually using a suitable plist editor. Be sure to follow the recommendations in the OpenCore documentation when editing config.plist.
+Notes:
+
+This script was developed and tested in a macOS environment.
+It is highly recommended to make a full backup of your EFI folder before running any update script.
+Always read the official OpenCore documentation before making any updates.
+Disclaimer:
+
+This script is provided "as is", without warranty of any kind. The author is not responsible for any damage caused by the use of this script. Use at your own risk.
+
+Contributions:
+
+Contributions to improve this script are welcome! Feel free to fork the repository, make your modifications, and submit a pull request.
