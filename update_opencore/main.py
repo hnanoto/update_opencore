@@ -2,7 +2,7 @@ import os
 import sys
 from environment import check_environment
 from dependencies import check_dependencies
-from efi import list_all_efi, get_installed_opencore_version, update_efi
+from efi import list_all_efi, get_installed_opencore_version, update_efi, update_boot_files  # Importe update_boot_files
 from downloads import download_oc, get_latest_opencore_version, download_hfs_driver
 from drivers import update_drivers
 from config import add_new_keys_to_config, create_python_script
@@ -20,8 +20,8 @@ def main():
     current_version = get_installed_opencore_version(efi_dir)
     latest_version = get_latest_opencore_version()
 
-    log(f"{get_translation( 'version_not_detected')}: {current_version}")
-    log(f"{get_translation( 'latest_version')}: {latest_version}")
+    log(f"{get_translation( 'version_not_detected', fallback_to_key=True)}: {current_version}")
+    log(f"{get_translation( 'latest_version', fallback_to_key=True)}: {latest_version}")
 
     # Variável para armazenar a escolha do usuário (RELEASE ou DEBUG)
     build_type = "RELEASE"
@@ -35,6 +35,7 @@ def main():
             "update_drivers_only",
             "add_new_keys",
             "validate_config_plist",
+            "update_boot_files", # Nova opção
             "exit"
         ]
 
@@ -44,7 +45,7 @@ def main():
             print(f"{i + 1}. {translation}")
 
         try:
-            choice = int(input(f"{get_translation( 'choose_option')}: "))
+            choice = int(input(f"{get_translation( 'choose_option', fallback_to_key=True)}: "))
         except ValueError:
             log(f"{RED}{get_translation( 'invalid_option')}{NC}")
             continue
@@ -85,6 +86,13 @@ def main():
             validate_config_plist(efi_dir)
             cleanup()
         elif choice == 6:
+            # Nova opção
+            backup_efi(efi_dir)
+            download_oc(build_type)
+            update_boot_files(efi_dir, build_type)
+            cleanup()
+            log(f"{GREEN}{get_translation('update_boot_files_success')}{NC}")
+        elif choice == 7:
             log(f"{YELLOW}{get_translation( 'exit')}{NC}")
             sys.exit(0)
         else:
