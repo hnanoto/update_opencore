@@ -84,5 +84,7 @@
     "validate_config_plist": "Validate config.plist",
     "cleaning_up": "Cleaning up temporary files...",
     "cleanup_completed": "Cleanup completed.",
-    "wait_5_seconds": "Waiting 5 seconds..."
+    "wait_5_seconds": "Waiting 5 seconds...",
+    "update_boot_files": "Update boot files (BOOTx64.efi and OpenCore.efi)",
+    "update_boot_files_success": "Boot files updated successfully!"
 }
