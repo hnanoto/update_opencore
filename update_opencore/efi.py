@@ -24,7 +24,7 @@ def list_all_efi():
     dependencies = ["curl", "unzip", "python3"]
     for cmd in dependencies:
         if not shutil.which(cmd):
-            log(f"{RED}{get_translation('dependency_not_found', False).format(cmd=cmd)}{NC}")
+            log(f"{RED}{get_translation('dependency_not_found', True).format(cmd=cmd)}{NC}")
             if cmd == "python3":
                 log(f"{YELLOW}{get_translation('python3_needed')}{NC}")
             sys.exit(1)
@@ -70,7 +70,7 @@ def list_all_efi():
             sys.exit(1)
 
         EFI_DIR = efi_dir
-        log(f"Partição EFI selecionada: {EFI_DIR}")
+        log(f"{get_translation('selected_efi')} {EFI_DIR}")
 
         if efi_dir:
             log(f"{GREEN}Partição EFI montada com sucesso. Continuando...{NC}")
@@ -78,7 +78,7 @@ def list_all_efi():
         else:
             log(f"{RED}{get_translation('efi_partition_error')}{NC}")
             log(f"{YELLOW}{get_translation('mount_manualy')}{NC}")
-            log(f"{YELLOW}Aguardando 5 segundos...{NC}")
+            log(f"{YELLOW}{get_translation('wait_5_seconds')}{NC}")
             time.sleep(5)  # Aguarda 5 segundos antes de verificar novamente
 
     return efi_dir
@@ -110,10 +110,10 @@ def update_efi(efi_dir, build_type="RELEASE"):
     efi_target_dir = os.path.join(efi_dir, "EFI")
 
     if not os.path.isdir(efi_source_dir):
-        log(f"{RED}{get_translation('source_folder_not_found').format(efi_source_dir)}{NC}")
+        log(f"{RED}{get_translation('source_folder_not_found').format(efi_source_dir=efi_source_dir)}{NC}")
         sys.exit(1)
 
-    log(f"{YELLOW}{get_translation('updating_efi_files').format(efi_target_dir)}{NC}")
+    log(f"{YELLOW}{get_translation('updating_efi_files').format(efi_target_dir=efi_target_dir)}{NC}")
     try:
         # Copia todos os arquivos e pastas, exceto a pasta Drivers
         for item in os.listdir(efi_source_dir):
@@ -131,4 +131,23 @@ def update_efi(efi_dir, build_type="RELEASE"):
         log(f"{GREEN}{get_translation('update_efi_success')}{NC}")
     except Exception as e:
         log(f"{RED}{get_translation('update_efi_error')}: {e}{NC}")
+        sys.exit(1)
+
+def update_boot_files(efi_dir, build_type="RELEASE"):
+    """Atualiza os arquivos BOOTx64.efi e OpenCore.efi na EFI."""
+    source_dir = os.path.join("OpenCore", "X64")
+    boot_efi_source = os.path.join(source_dir, "EFI", "BOOT", "BOOTx64.efi")
+    opencore_efi_source = os.path.join(source_dir, "EFI", "OC", "OpenCore.efi")
+
+    boot_efi_target = os.path.join(efi_dir, "EFI", "BOOT", "BOOTx64.efi")
+    opencore_efi_target = os.path.join(efi_dir, "EFI", "OC", "OpenCore.efi")
+
+    log(f"{YELLOW}Atualizando BOOTx64.efi e OpenCore.efi em {efi_dir}/EFI...{NC}")
+    try:
+        shutil.copy2(boot_efi_source, boot_efi_target)
+        log(f"{GREEN}BOOTx64.efi atualizado com sucesso.{NC}")
+        shutil.copy2(opencore_efi_source, opencore_efi_target)
+        log(f"{GREEN}OpenCore.efi atualizado com sucesso.{NC}")
+    except Exception as e:
+        log(f"{RED}Erro ao atualizar arquivos de boot: {e}{NC}")
         sys.exit(1)
