@@ -12,6 +12,24 @@ NC = "\033[0;m"  # Sem cor
 # Arquivo de log
 LOGFILE = f"update_opencore_{datetime.now().strftime('%Y%m%d%H%M%S')}.log"
 
+# Variável global para armazenar as traduções em memória
+TRANSLATIONS = {}
+
+def load_translations():
+    """Carrega as traduções de todos os arquivos JSON para o dicionário TRANSLATIONS."""
+    global TRANSLATIONS
+    translations_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations")
+    
+    for filename in os.listdir(translations_dir):
+        if filename.endswith(".json"):
+            lang = filename[:-5]  # Remove a extensão .json
+            filepath = os.path.join(translations_dir, filename)
+            try:
+                with open(filepath, "r", encoding="utf-8") as f: # Adicionado encoding="utf-8"
+                    TRANSLATIONS[lang] = json.load(f)
+            except Exception as e:
+                log(f"{RED}Erro ao carregar traduções para {lang}: {e}{NC}")
+
 def get_system_language():
     """Detecta o idioma preferido do usuário usando a biblioteca locale."""
     try:
@@ -37,41 +55,29 @@ def log(message):
 
 def get_translation(key, fallback_to_key=True):
     """Retorna a tradução para a chave especificada no idioma do sistema."""
-    translations_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations")
     lang = get_system_language()
 
-    # Tenta carregar o idioma completo (ex: pt_BR.json)
-    lang_file = os.path.join(translations_dir, f"{lang}.json")
-    if os.path.isfile(lang_file):
-        try:
-            with open(lang_file, "r") as f:
-                translations = json.load(f)
-            if key in translations:
-                return translations[key]
-        except Exception as e:
-            log(f"{RED}Erro ao ler o arquivo de tradução para {lang}: {e}{NC}")
+    # Tenta encontrar a tradução para o idioma completo
+    if lang in TRANSLATIONS:
+        if key in TRANSLATIONS[lang]:
+            return TRANSLATIONS[lang][key]
 
-    # Tenta carregar a primeira parte do idioma (ex: pt.json)
+    # Tenta encontrar a tradução para a primeira parte do idioma
     lang_short = lang.split("_")[0]
-    lang_short_file = os.path.join(translations_dir, f"{lang_short}.json")
-    if os.path.isfile(lang_short_file):
-        try:
-            with open(lang_short_file, "r") as f:
-                translations = json.load(f)
-            if key in translations:
-                return translations[key]
-        except Exception as e:
-            log(f"{RED}Erro ao ler o arquivo de tradução para {lang_short}: {e}{NC}")
+    if lang_short in TRANSLATIONS:
+        if key in TRANSLATIONS[lang_short]:
+            return TRANSLATIONS[lang_short][key]
 
-    # Se não encontrar a tradução e fallback_to_key for True, tenta o inglês
+    # Se não encontrou a tradução, tenta carregar do en.json se fallback for True
     if fallback_to_key:
-        try:
-            with open(os.path.join(translations_dir, "en.json"), "r") as f:
-                translations = json.load(f)
-            if key in translations:
-                return translations[key]  # Retorna a tradução em inglês
-        except Exception as e:
-            log(f"{RED}Erro ao ler o arquivo de tradução para inglês: {e}{NC}")
-        return key # Retorna a chave se o inglês também não for encontrado
+        if "en" in TRANSLATIONS:
+            if key in TRANSLATIONS["en"]:
+                return TRANSLATIONS["en"][key]
+        else:
+            log(f"{RED}Erro: Arquivo de tradução para inglês (en.json) não encontrado!{NC}")
+        return key  # Retorna a chave se não encontrar em inglês e fallback_to_key for True
     else:
         return None  # Retorna None se a tradução não for encontrada e fallback_to_key for False
+
+# Carrega as traduções no início do script
+load_translations()
