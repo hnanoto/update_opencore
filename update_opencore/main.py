@@ -2,7 +2,7 @@ import os
 import sys
 from environment import check_environment
 from dependencies import check_dependencies
-from efi import list_all_efi, get_installed_opencore_version, update_efi, update_boot_files  # Importe update_boot_files
+from efi import list_all_efi, get_installed_opencore_version, update_efi, update_boot_files
 from downloads import download_oc, get_latest_opencore_version, download_hfs_driver
 from drivers import update_drivers
 from config import add_new_keys_to_config, create_python_script
@@ -15,37 +15,44 @@ def main():
     """Função principal que exibe o menu e executa as ações."""
     check_environment()
     check_dependencies()
-    efi_dir = list_all_efi()  # Captura o valor de EFI_DIR
+    efi_dir = list_all_efi()
 
     current_version = get_installed_opencore_version(efi_dir)
     latest_version = get_latest_opencore_version()
 
-    log(f"{get_translation( 'version_not_detected', fallback_to_key=True)}: {current_version}")
-    log(f"{get_translation( 'latest_version', fallback_to_key=True)}: {latest_version}")
+    log(f"{get_translation( 'version_not_detected')}: {current_version}")
+    log(f"{get_translation( 'latest_version')}: {latest_version}")
 
     # Variável para armazenar a escolha do usuário (RELEASE ou DEBUG)
     build_type = "RELEASE"
+    
+    # Variável para controlar se o log detalhado está habilitado
+    verbose = False
+    
+    # Verifica se a opção "-v" ou "--verbose" está presente nos argumentos da linha de comando
+    if "-v" in sys.argv or "--verbose" in sys.argv:
+        verbose = True
 
     while True:
         print("\nEscolha uma opção:")
-        
+
         menu_options = [
             "update_opencore_release",
             "update_opencore_debug",
             "update_drivers_only",
             "add_new_keys",
             "validate_config_plist",
-            "update_boot_files", # Nova opção
+            "update_boot_files",
             "exit"
         ]
 
-        # Exibe as opções do menu traduzidas, se disponível, se não mostra em inglês
+        # Exibe as opções do menu traduzidas
         for i, option in enumerate(menu_options):
             translation = get_translation(option)
             print(f"{i + 1}. {translation}")
 
         try:
-            choice = int(input(f"{get_translation( 'choose_option', fallback_to_key=True)}: "))
+            choice = int(input(f"{get_translation( 'choose_option')}: "))
         except ValueError:
             log(f"{RED}{get_translation( 'invalid_option')}{NC}")
             continue
@@ -70,19 +77,19 @@ def main():
             log(f"{GREEN}{get_translation( 'update_opencore_debug')}{NC}")
         elif choice == 3:
             backup_efi(efi_dir)
-            download_oc(build_type) # Usa a última versão baixada
+            download_oc(build_type)
             update_drivers(efi_dir)
             cleanup()
             log(f"{GREEN}{get_translation( 'update_drivers_only')}{NC}")
         elif choice == 4:
             create_python_script()
             backup_efi(efi_dir)
-            download_oc(build_type) # Usa a última versão baixada
+            download_oc(build_type)
             add_new_keys_to_config(efi_dir)
             cleanup()
             log(f"{GREEN}{get_translation( 'new_keys_added')}{NC}")
         elif choice == 5:
-            download_oc(build_type) # Usa a última versão baixada
+            download_oc(build_type)
             validate_config_plist(efi_dir)
             cleanup()
         elif choice == 6:
