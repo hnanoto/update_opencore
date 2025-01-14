@@ -19,7 +19,7 @@ def list_all_efi():
         log(f"{YELLOW}{get_translation('environment_error_root')}{NC}")
         os.execvp("sudo", ["sudo"] + sys.argv)
     log(f"{GREEN}{get_translation('environment_success')}{NC}")
-    
+
     log(f"{YELLOW}{get_translation('dependencies_check')}{NC}")
     dependencies = ["curl", "unzip", "python3"]
     for cmd in dependencies:
@@ -72,13 +72,20 @@ def list_all_efi():
         EFI_DIR = efi_dir
         log(f"{get_translation('selected_efi')} {EFI_DIR}")
 
+        # Verifica se a EFI está montada e se contém uma instalação do OpenCore
         if efi_dir:
-            log(f"{GREEN}Partição EFI montada com sucesso. Continuando...{NC}")
-            break  # Sai do loop se a partição estiver montada
+            if os.path.isdir(os.path.join(efi_dir, "EFI", "OC")) and os.path.isfile(os.path.join(efi_dir, "EFI", "OC", "config.plist")) and os.path.isfile(os.path.join(efi_dir, "EFI", "BOOT", "BOOTx64.efi")):
+              log(f"{GREEN}Partição EFI montada com sucesso e contém uma instalação do OpenCore. Continuando...{NC}")
+              break  # Sai do loop se a partição estiver montada e válida
+            else:
+              log(f"{RED}Erro: A partição EFI selecionada não parece conter uma instalação válida do OpenCore.{NC}")
+              log(f"{YELLOW}{get_translation('mount_manualy')}{NC}")
+              log(f"{YELLOW}Aguardando 5 segundos...{NC}")
+              time.sleep(5)
         else:
             log(f"{RED}{get_translation('efi_partition_error')}{NC}")
             log(f"{YELLOW}{get_translation('mount_manualy')}{NC}")
-            log(f"{YELLOW}{get_translation('wait_5_seconds')}{NC}")
+            log(f"{YELLOW}Aguardando 5 segundos...{NC}")
             time.sleep(5)  # Aguarda 5 segundos antes de verificar novamente
 
     return efi_dir
