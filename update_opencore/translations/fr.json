@@ -1,13 +1,13 @@
 {
   "environment_check": "Vérification de l'environnement...",
   "environment_success": "Environnement vérifié avec succès.",
-  "environment_error_macos": "Erreur: Ce script doit être exécuté sous macOS.",
+  "environment_error_macos": "Erreur : Ce script doit être exécuté sous macOS.",
   "environment_error_root": "Ce script nécessite des autorisations d'administrateur. Demande de sudo...",
   "select_efi": "Sélectionnez le numéro de la partition EFI que vous souhaitez utiliser:",
-  "no_efi_found": "Erreur: aucune partition EFI trouvée.",
+  "no_efi_found": "Erreur : aucune partition EFI trouvée.",
   "mount_point": "Point de montage",
-  "efi_detect_error": "Erreur: Échec de l'exécution de 'diskutil list'",
-  "efi_partition_error": "Erreur: la partition EFI sélectionnée n'est pas montée.",
+  "efi_detect_error": "Erreur : Échec de l'exécution de 'diskutil list'",
+  "efi_partition_error": "Erreur : la partition EFI sélectionnée n'est pas montée.",
   "mount_manualy": "Montez l'EFI manuellement et exécutez à nouveau le script.",
   "selected_efi": "Partition EFI sélectionnée:",
   "backup_create": "Création d'une sauvegarde dans",
@@ -15,7 +15,7 @@
   "backup_create_error": "Erreur lors de la création de la sauvegarde:",
   "dependencies_check": "Vérification des dépendances...",
   "dependencies_success": "Toutes les dépendances sont disponibles.",
-  "dependency_not_found": "Erreur: Dépendance '{cmd}' introuvable.",
+  "dependency_not_found": "Erreur : Dépendance '{cmd}' introuvable.",
   "python3_needed": "Python 3 est requis pour le script. Installez-le via Homebrew avec 'brew install python3'.",
   "python_script_created": "Script Python add_new_keys.py créé.",
   "python_script_creation_error": "Erreur lors de la création du script Python:",
@@ -84,5 +84,7 @@
   "validate_config_plist": "Valider config.plist",
   "cleaning_up": "Nettoyage des fichiers temporaires...",
   "cleanup_completed": "Nettoyage terminé.",
-  "wait_5_seconds": "Attente de 5 secondes..."
+  "wait_5_seconds": "Attente de 5 secondes...",
+  "update_boot_files": "Mettre à jour les fichiers de démarrage (BOOTx64.efi et OpenCore.efi)",
+  "update_boot_files_success": "Fichiers de démarrage mis à jour avec succès!"
 }
