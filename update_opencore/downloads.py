@@ -2,7 +2,7 @@ import os
 import requests
 import subprocess
 import sys
-from logger import log, RED, YELLOW, GREEN, NC, get_translation  # Importe get_translation aqui
+from logger import log, RED, YELLOW, GREEN, NC, get_translation
 from tqdm import tqdm
 import hashlib
 
@@ -37,26 +37,52 @@ def calculate_sha256(file_path):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_oc(build_type="RELEASE"):
+def download_oc(build_type="RELEASE", pre_release=False):
     """Baixa e extrai a versão Release ou Debug do OpenCore."""
-    log(f"{YELLOW}{get_translation('downloading_opencore', True)} {build_type}...{NC}")
+    log(f"{YELLOW}Baixando OpenCore versão {build_type}...{NC}")
     try:
-        response = requests.get("https://api.github.com/repos/acidanthera/OpenCorePkg/releases/latest")
-        response.raise_for_status()
+        if pre_release:
+            response = requests.get("https://api.github.com/repos/acidanthera/OpenCorePkg/releases")
+            response.raise_for_status()
+            releases = response.json()
+            # Encontrar a versão pré-lançamento mais recente (invertendo a lista)
+            latest_pre_release = None
+            for release in reversed(releases):
+                if release["prerelease"]:
+                    latest_pre_release = release
+                    break
 
-        oc_url = None
-        oc_sha256_url = None
-        for asset in response.json()["assets"]:
-            if f"-{build_type}.zip" in asset["browser_download_url"]:
-                oc_url = asset["browser_download_url"]
-                oc_sha256_url = asset["browser_download_url"] + ".sha256"
-                break
+            if not latest_pre_release:
+                log(f"{RED}Erro: Não foi possível encontrar uma versão pré-lançamento do OpenCore.{NC}")
+                return False  # Retorna False em vez de sys.exit(1)
 
-        if not oc_url:
-            log(f"{RED}{get_translation('opencore_download_link_not_found', True).format(build_type=build_type)}{NC}")
-            sys.exit(1)
+            oc_url = None
+            for asset in latest_pre_release["assets"]:
+                if f"-{build_type}.zip" in asset["browser_download_url"]:
+                    oc_url = asset["browser_download_url"]
+                    oc_sha256_url = asset["browser_download_url"] + ".sha256"
+                    break
 
-        log(f"{get_translation('opencore_download_link_found', True).format(build_type=build_type)}: {oc_url}")
+            if not oc_url:
+                log(f"{RED}Erro: Não foi possível obter o link da versão pré-lançamento {build_type} do OpenCore.{NC}")
+                return False  # Retorna False em vez de sys.exit(1)
+
+            log(f"Link de download do OpenCore versão pré-lançamento {build_type} encontrado: {oc_url}")
+        else:
+            response = requests.get("https://api.github.com/repos/acidanthera/OpenCorePkg/releases/latest")
+            response.raise_for_status()
+            oc_url = None
+            for asset in response.json()["assets"]:
+                if f"-{build_type}.zip" in asset["browser_download_url"]:
+                    oc_url = asset["browser_download_url"]
+                    oc_sha256_url = asset["browser_download_url"] + ".sha256"
+                    break
+
+            if not oc_url:
+                log(f"{RED}Erro: Não foi possível obter o link da versão {build_type} do OpenCore.{NC}")
+                sys.exit(1)
+
+            log(f"Link de download do OpenCore versão {build_type} encontrado: {oc_url}")
 
         # Tenta baixar o checksum SHA-256
         try:
@@ -114,7 +140,8 @@ def download_oc(build_type="RELEASE"):
     except subprocess.CalledProcessError:
         log(f"{RED}{get_translation('extract_error')}{NC}")
         sys.exit(1)
-    log(f"{GREEN}{get_translation('download_success', True).format(build_type=build_type)}{NC}")
+    log(f"{GREEN}OpenCore versão {build_type} baixado e extraído com sucesso.{NC}")
+    return True # Retorna True se o download e a extração forem bem-sucedidos
 
 def get_latest_opencore_version():
     """Obtém a versão mais recente do OpenCore da API do GitHub."""

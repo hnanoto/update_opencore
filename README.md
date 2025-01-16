@@ -91,7 +91,7 @@ Este script é fornecido "como está", sem garantia de qualquer tipo. O autor n�
 Contribuições:
 
 Contribuições para melhorar este script são bem-vindas! Sinta-se à vontade para fazer um fork do repositório, fazer as suas modificações e enviar um pull request.
-
+Em português 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # update_opencore
