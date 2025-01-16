@@ -86,5 +86,8 @@
     "cleanup_completed": "Limpeza concluída.",
     "wait_5_seconds": "Aguardando 5 segundos...",
     "update_boot_files": "Atualizar arquivos de boot (BOOTx64.efi e OpenCore.efi)",
-    "update_boot_files_success": "Arquivos de boot atualizados com sucesso!"
+    "update_boot_files_success": "Arquivos de boot atualizados com sucesso!",
+    "update_opencore_pre_release": "Atualizar OpenCore (Pré-lançamento)",
+    "ask_pre_release_build_type": "Digite o tipo de build (RELEASE/DEBUG) para a versão pré-lançamento: ",
+    "confirm_backup": "Deseja fazer um backup da sua EFI antes de prosseguir (s/n)?"
 }
