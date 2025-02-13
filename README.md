@@ -64,6 +64,61 @@ Instruções para instalar o Python 3 no macOS podem ser encontradas na internet
 Outras dependências: Como curl, unzip e PlistBuddy já vêm instalados por padrão no macOS, geralmente não é necessário instalá-los separadamente.
 Possíveis Problemas e Soluções:
 
+porque dá isso? henrique@iMac-Pro-de-Henrique ~ % sudo python3 /Volumes/UNTITLED/Linux/FerramentasTops/update_opencore/update_opencore/main.py
+Traceback (most recent call last):
+File "/Volumes/UNTITLED/Linux/FerramentasTops/update_opencore/update_opencore/main.py", line 6, in <module>
+from downloads import download_oc, get_latest_opencore_version, download_hfs_driver
+File "/Volumes/UNTITLED/Linux/FerramentasTops/update_opencore/update_opencore/downloads.py", line 6, in <module>
+from tqdm import tqdm
+ModuleNotFoundError: No module named 'tqdm'
+henrique@iMac-Pro-de-Henrique ~ %
+O erro "ModuleNotFoundError: No module named 'tqdm'" indica que o script Python está tentando usar um módulo chamado tqdm, mas ele não está instalado no seu sistema Python.
+
+tqdm é uma biblioteca Python que fornece uma barra de progresso para loops e outras operações demoradas. É muito útil para mostrar o andamento de downloads, processamentos de dados, etc.
+
+Para corrigir o problema, você precisa instalar o módulo tqdm.
+
+Você pode fazer isso usando o pip, o gerenciador de pacotes do Python. Abra o Terminal (ou Prompt de Comando, se estiver no Windows) e execute o seguinte comando:
+
+pip3 install tqdm
+Use code with caution.
+Bash
+Explicação do comando:
+
+pip3: Invoca o gerenciador de pacotes Python 3 (que você está usando, como indicado por python3 no seu comando original). Se você tiver apenas uma versão do Python instalada, pip pode ser suficiente.
+install: Diz ao pip para instalar um pacote.
+tqdm: O nome do pacote que você deseja instalar.
+Depois de executar o comando, aguarde a instalação ser concluída. Você verá mensagens indicando o progresso da instalação.
+
+Execute o script novamente:
+
+Depois que o tqdm for instalado, tente executar o script novamente:
+
+sudo python3 /Volumes/UNTITLED/Linux/FerramentasTops/update_opencore/update_opencore/main.py
+Use code with caution.
+Bash
+Deverá funcionar sem o erro de ModuleNotFoundError.
+
+Se o pip3 não for encontrado:
+
+Se o comando pip3 não funcionar e você receber um erro dizendo que o comando não foi encontrado, pode ser que o pip não esteja instalado ou não esteja no seu PATH.
+
+Verifique se o Python está instalado corretamente: Abra o Terminal e digite python3 --version. Se o Python não estiver instalado, você precisará instalá-lo.
+Instale o pip: Se o Python estiver instalado, mas o pip não, tente instalar usando o seguinte comando:
+sudo apt update  # (Se você estiver usando um sistema baseado em Debian/Ubuntu)
+sudo apt install python3-pip
+Use code with caution.
+Bash
+Ou, se você estiver em outro sistema operacional, consulte a documentação da sua distribuição Linux ou siga as instruções de instalação do Python para o seu sistema.
+Resumo:
+
+Erro: ModuleNotFoundError: No module named 'tqdm' significa que o módulo tqdm não está instalado.
+Solução: Instale o tqdm usando pip3 install tqdm.
+Verificação adicional: Se o pip3 não funcionar, verifique se o Python está instalado e, em seguida, instale o pip.
+Depois de instalar o tqdm e executar o script novamente, ele deve funcionar corretamente. Se você ainda tiver problemas, forneça mais detalhes sobre o seu sistema operacional e quaisquer outros erros que você receber.
+
+
+
 ModuleNotFoundError: No module named 'requests': Significa que o módulo requests do Python não está instalado.
 Solução: Instale o módulo requests usando o pip:
 sudo python3 -m pip install requests
