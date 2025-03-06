@@ -1,6 +1,8 @@
 # update_opencore
 www.youtube.com/@HackintoshAndBeyond
 
+Video da ferramenta: https://youtu.be/dH-TH812sTQ
+
 [discord.gg/5hvZ5u7QXQ](https://discord.gg/5hvZ5u7QXQ)
 
 Update-OC-EFI Script
