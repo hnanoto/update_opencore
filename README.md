@@ -154,6 +154,8 @@ Em português
 # update_opencore
 www.youtube.com/@HackintoshAndBeyond
 
+Tool video:https://youtu.be/MBLHSM82C5Y
+
 [discord.gg/5hvZ5u7QXQ](https://discord.gg/5hvZ5u7QXQ)
 
 Update-OC-EFI Script
