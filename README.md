@@ -1,4 +1,5 @@
 # update_opencore
+![Banner](images/banner.svg)
 www.youtube.com/@HackintoshAndBeyond
 
 Video da ferramenta: https://youtu.be/dH-TH812sTQ
@@ -11,6 +12,7 @@ Este script foi desenvolvido para automatizar o processo de atualização do Ope
 Funcionalidades:
 
 Interface de Menu Intuitiva: Um menu simples e direto ao ponto permite que o usuário escolha a operação desejada com facilidade.
+![Menu](images/menu.svg)
 Detecção Automática da Partição EFI: O script localiza e identifica automaticamente as partições EFI montadas no sistema.
 Backup Automático da EFI: Antes de fazer qualquer modificação, o script cria um backup completo da pasta EFI em EFI-Backup-<data>-<hora> na própria partição EFI, permitindo reverter facilmente para uma configuração anterior em caso de problemas.
 Download do OpenCore: Baixa a última versão RELEASE ou DEBUG do OpenCore diretamente do repositório oficial da Acidanthera no GitHub.
