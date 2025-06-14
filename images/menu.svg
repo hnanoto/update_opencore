@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" font-family="Arial, Helvetica, sans-serif">
+  <rect width="400" height="200" fill="#f5f5f5"/>
+  <text x="20" y="40" font-size="18" fill="#333">1. Atualizar OpenCore (RELEASE)</text>
+  <text x="20" y="70" font-size="18" fill="#333">2. Atualizar OpenCore (DEBUG)</text>
+  <text x="20" y="100" font-size="18" fill="#333">3. Atualizar apenas drivers</text>
+  <text x="20" y="130" font-size="18" fill="#333">4. Adicionar novas chaves</text>
+  <text x="20" y="160" font-size="18" fill="#333">5. Validar config.plist</text>
+  <text x="20" y="190" font-size="18" fill="#333">6. Atualizar arquivos BOOT</text>
+</svg>
