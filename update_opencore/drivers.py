@@ -1,8 +1,61 @@
 import os
 import shutil
+import sys
+from datetime import datetime
 from logger import log, RED, YELLOW, GREEN, NC
 from downloads import download_hfs_driver
 from config import get_enabled_drivers
+
+def get_drivers_by_modification_time(drivers_dir):
+    """Retorna lista de drivers ordenados por data de modificação (mais antigos primeiro)."""
+    drivers = []
+    for filename in os.listdir(drivers_dir):
+        if filename.endswith(".efi"):
+            file_path = os.path.join(drivers_dir, filename)
+            mod_time = os.path.getmtime(file_path)
+            drivers.append((filename, mod_time, file_path))
+    
+    # Ordena por data de modificação (mais antigos primeiro)
+    drivers.sort(key=lambda x: x[1])
+    return drivers
+
+def update_hfsplus_driver(efi_drivers_dir, enabled_drivers_with_extension):
+    """Atualiza o HfsPlus.efi se estiver habilitado."""
+    hfsplus_driver = "HfsPlus.efi"
+    
+    if hfsplus_driver in enabled_drivers_with_extension:
+        log(f"{YELLOW}🔄 Verificando {hfsplus_driver} (driver externo)...{NC}")
+        
+        # Sempre baixa a versão mais recente do HfsPlus.efi
+        log(f"{YELLOW}📥 Baixando {hfsplus_driver} do repositório OcBinaryData...{NC}")
+        download_hfs_driver()
+        
+        # Verifica se o HfsPlus.efi foi baixado com sucesso
+        local_hfsplus_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), hfsplus_driver)
+        efi_hfsplus_path = os.path.join(efi_drivers_dir, hfsplus_driver)
+        
+        if os.path.exists(local_hfsplus_path):
+            try:
+                # Sempre copia (atualiza) o HfsPlus.efi
+                shutil.copy2(local_hfsplus_path, efi_hfsplus_path)
+                
+                # Verifica se a cópia foi bem-sucedida
+                if os.path.exists(efi_hfsplus_path):
+                    file_size = os.path.getsize(efi_hfsplus_path)
+                    log(f"{GREEN}✅ {hfsplus_driver} atualizado com sucesso ({file_size} bytes).{NC}")
+                    return True
+                else:
+                    log(f"{RED}❌ Erro: {hfsplus_driver} não foi copiado corretamente.{NC}")
+                    return False
+            except Exception as e:
+                log(f"{RED}❌ Erro ao copiar {hfsplus_driver}: {e}{NC}")
+                return False
+        else:
+            log(f"{RED}❌ Erro: {hfsplus_driver} não foi baixado com sucesso.{NC}")
+            return False
+    else:
+        log(f"{YELLOW}⏭️ {hfsplus_driver} não está habilitado no config.plist. Pulando.{NC}")
+        return True
 
 def update_drivers(efi_dir):
     """Atualiza os drivers na pasta EFI/OC/Drivers e remove os não utilizados."""
@@ -30,52 +83,56 @@ def update_drivers(efi_dir):
     for driver in enabled_drivers_with_extension:
         processed_drivers[driver] = True
 
-    # Verifica e baixa o HfsPlus.efi se necessário
-    hfsplus_driver = "HfsPlus.efi"
-    if hfsplus_driver in enabled_drivers_with_extension and not os.path.exists(os.path.join(efi_drivers_dir, hfsplus_driver)):
-        log(f"{YELLOW}Baixando {hfsplus_driver} do repositório OcBinaryData...{NC}")
-        download_hfs_driver()
-        
-        # Verifica se o HfsPlus.efi foi baixado com sucesso antes de tentar copiá-lo
-        if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), hfsplus_driver)):
-            try:
-                shutil.copy2(os.path.join(os.path.dirname(os.path.abspath(__file__)), hfsplus_driver), os.path.join(efi_drivers_dir, hfsplus_driver))
-                log(f"{GREEN}{hfsplus_driver} copiado para a pasta Drivers da EFI.{NC}")
-            except Exception as e:
-                log(f"{RED}Erro ao copiar {hfsplus_driver} para a pasta Drivers da EFI: {e}{NC}")
-                sys.exit(1)
-        else:
-            log(f"{RED}Erro: {hfsplus_driver} não foi baixado com sucesso.{NC}")
-            sys.exit(1)
+    # Atualiza o HfsPlus.efi primeiro (driver externo)
+    hfsplus_success = update_hfsplus_driver(efi_drivers_dir, enabled_drivers_with_extension)
+    if not hfsplus_success:
+        log(f"{RED}❌ Falha na atualização do HfsPlus.efi. Abortando.{NC}")
+        sys.exit(1)
 
-    # Atualiza os drivers habilitados
-    for new_driver in os.listdir(new_drivers_dir):
-        if not new_driver.endswith(".efi"):
-            continue
-
-        new_driver_path = os.path.join(new_drivers_dir, new_driver)
+    # Obtém drivers ordenados por data de modificação (excluindo HfsPlus.efi)
+    sorted_drivers = get_drivers_by_modification_time(new_drivers_dir)
+    
+    # Filtra apenas drivers que não são HfsPlus.efi (já foi tratado)
+    sorted_drivers = [d for d in sorted_drivers if d[0] != "HfsPlus.efi"]
+    
+    log(f"{YELLOW}Atualizando {len(sorted_drivers)} drivers do OpenCore em ordem de modificação...{NC}")
+    
+    # Atualiza os drivers habilitados em ordem de modificação
+    updated_count = 0
+    for i, (new_driver, mod_time, new_driver_path) in enumerate(sorted_drivers, 1):
         efi_driver_path = os.path.join(efi_drivers_dir, new_driver)
+        mod_date = datetime.fromtimestamp(mod_time).strftime('%Y-%m-%d %H:%M:%S')
 
         if new_driver in enabled_drivers_with_extension:
-            log(f"{YELLOW}Atualizando {new_driver} (sobrescrevendo)...{NC}")
+            log(f"{YELLOW}[{i}/{len(sorted_drivers)}] Atualizando {new_driver} (modificado em {mod_date})...{NC}")
             try:
                 shutil.copy2(new_driver_path, efi_driver_path)
+                log(f"{GREEN}✅ {new_driver} atualizado com sucesso.{NC}")
+                updated_count += 1
             except Exception as e:
-                log(f"{RED}Erro ao atualizar {new_driver}: {e}{NC}")
+                log(f"{RED}❌ Erro ao atualizar {new_driver}: {e}{NC}")
                 sys.exit(1)
         else:
-            log(f"{YELLOW}Driver {new_driver} não está habilitado no config.plist. Pulando.{NC}")
+            log(f"{YELLOW}[{i}/{len(sorted_drivers)}] Driver {new_driver} não está habilitado no config.plist. Pulando.{NC}")
 
     # Remove drivers não utilizados
     log(f"{YELLOW}Removendo drivers não utilizados da pasta {efi_drivers_dir}...{NC}")
+    removed_count = 0
     for efi_driver in os.listdir(efi_drivers_dir):
         if efi_driver.endswith(".efi") and efi_driver not in processed_drivers:
             efi_driver_path = os.path.join(efi_drivers_dir, efi_driver)
-            log(f"{YELLOW}Removendo driver não utilizado: {efi_driver}{NC}")
+            log(f"{YELLOW}🗑️ Removendo driver não utilizado: {efi_driver}{NC}")
             try:
                 os.remove(efi_driver_path)
+                removed_count += 1
             except Exception as e:
-                log(f"{RED}Erro ao remover {efi_driver}: {e}{NC}")
+                log(f"{RED}❌ Erro ao remover {efi_driver}: {e}{NC}")
                 sys.exit(1)
 
-    log(f"{GREEN}Drivers atualizados e drivers não utilizados removidos com sucesso.{NC}")
+    # Calcula total de drivers atualizados (incluindo HfsPlus.efi)
+    total_updated = updated_count
+    if "HfsPlus.efi" in enabled_drivers_with_extension:
+        total_updated += 1
+
+    log(f"{GREEN}✅ Drivers atualizados com sucesso!")
+    log(f"{GREEN}📊 Resumo: {total_updated} drivers atualizados ({updated_count} do OpenCore + HfsPlus.efi), {removed_count} drivers removidos.{NC}")
