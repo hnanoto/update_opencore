@@ -97,15 +97,15 @@ def list_all_efi():
                             efi_path = os.path.join(efi_dir, "EFI")
                             if os.path.isdir(efi_path) and 'OC' in os.listdir(efi_path) and any(fname.endswith('.efi') for fname in os.listdir(os.path.join(efi_path, 'OC', 'Drivers'))):
                                 EFI_DIR = efi_dir
-                                log(f"Partição EFI selecionada: {EFI_DIR}")
-                                log(f"{GREEN}Partição EFI montada com sucesso e contém uma instalação do OpenCore. Continuando...{NC}")
+                                log(f"{get_translation('efi_selected_success', fallback_to_key=True).format(efi_dir=EFI_DIR)}")
+                                log(f"{GREEN}{get_translation('efi_mounted_success', fallback_to_key=True)}{NC}")
                                 return EFI_DIR  # Retorna o caminho da EFI válida
                             else:
-                                log(f"{RED}Erro: A partição EFI selecionada ({efi_dir}) não parece conter uma instalação válida do OpenCore.{NC}")
+                                log(f"{RED}{get_translation('efi_invalid_error', fallback_to_key=True).format(efi_dir=efi_dir)}{NC}")
                                 # Sai do loop interno para solicitar nova seleção de partição se a EFI não for válida
                                 break
                         else:
-                            log(f"{YELLOW}Tentando montar a partição EFI ({efi_part}) automaticamente...{NC}")
+                            log(f"{YELLOW}{get_translation('efi_mount_auto_try', fallback_to_key=True).format(efi_part=efi_part)}{NC}")
                             try:
                                 subprocess.run(["diskutil", "mount", efi_part], check=True, capture_output=True)
                                 time.sleep(1) # Aguarda o sistema registrar a montagem
@@ -113,10 +113,10 @@ def list_all_efi():
                             except subprocess.CalledProcessError:
                                 log(f"{RED}{get_translation('efi_partition_error')}{NC}")
                                 log(f"{YELLOW}{get_translation('mount_manualy')}{NC}")
-                                log(f"{YELLOW}Aguardando 5 segundos...{NC}")
+                                log(f"{YELLOW}{get_translation('efi_mount_wait', fallback_to_key=True)}{NC}")
                                 time.sleep(5)  # Aguarda 5 segundos antes de verificar novamente
                     except subprocess.CalledProcessError:
-                        log(f"{RED}Erro: Falha ao executar 'diskutil info {efi_part}'.{NC}")
+                        log(f"{RED}{get_translation('efi_diskutil_error', fallback_to_key=True).format(efi_part=efi_part)}{NC}")
                         sys.exit(1)
             else:
                 log(f"{RED}{get_translation('invalid_option')}{NC}")
@@ -141,7 +141,7 @@ def get_installed_opencore_version(efi_dir):
                     version = line.split()[-2]
                     return version
         except subprocess.CalledProcessError as e:
-            log(f"{RED}Erro ao detectar a versão do OpenCore: {e}{NC}")
+            log(f"{RED}{get_translation('detect_oc_version_error', fallback_to_key=True).format(e=e)}{NC}")
     return get_translation('version_not_detected', fallback_to_key=True)
 
 def update_efi(efi_dir, build_type="RELEASE"):
@@ -182,12 +182,12 @@ def update_boot_files(efi_dir, build_type="RELEASE"):
     boot_efi_target = os.path.join(efi_dir, "EFI", "BOOT", "BOOTx64.efi")
     opencore_efi_target = os.path.join(efi_dir, "EFI", "OC", "OpenCore.efi")
 
-    log(f"{YELLOW}Atualizando BOOTx64.efi e OpenCore.efi em {efi_dir}/EFI...{NC}")
+    log(f"{YELLOW}{get_translation('updating_boot_efi_msg', fallback_to_key=True).format(efi_dir=efi_dir)}{NC}")
     try:
         shutil.copy2(boot_efi_source, boot_efi_target)
-        log(f"{GREEN}BOOTx64.efi atualizado com sucesso.{NC}")
+        log(f"{GREEN}{get_translation('bootx64_updated', fallback_to_key=True)}{NC}")
         shutil.copy2(opencore_efi_source, opencore_efi_target)
-        log(f"{GREEN}OpenCore.efi atualizado com sucesso.{NC}")
+        log(f"{GREEN}{get_translation('opencore_efi_updated', fallback_to_key=True)}{NC}")
     except Exception as e:
-        log(f"{RED}Erro ao atualizar arquivos de boot: {e}{NC}")
+        log(f"{RED}{get_translation('boot_files_error', fallback_to_key=True).format(e=e)}{NC}")
         sys.exit(1)
