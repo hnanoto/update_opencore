@@ -122,5 +122,6 @@
     "y_n_prompt": "(y/n)",
     "safe_delete_prompt": "Are you absolutely sure you want to permanently delete these drivers? (y/n): ",
     "drivers_kept": "Drivers were kept safely in EFI.",
-    "drivers_unused_removed": "Unused drivers removed from EFI."
+    "drivers_unused_removed": "Unused drivers removed from EFI.",
+    "new_keys_added": "New keys successfully added to config.plist!"
 }

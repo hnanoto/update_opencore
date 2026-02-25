@@ -71,7 +71,7 @@ def is_warning_key(key):
 def add_new_keys_to_config(efi_dir):
     """Adiciona novas chaves do Sample.plist ao config.plist."""
     import sys
-    log(f"{YELLOW}Adicionando novas chaves do Sample.plist ao config.plist...{NC}")
+    log(f"{YELLOW}{get_translation('adding_new_keys', fallback_to_key=True)}{NC}")
     sample_config = os.path.join("OpenCore", "Docs", "Sample.plist")
     current_config = os.path.join(efi_dir, "EFI", "OC", "config.plist")
 
@@ -93,7 +93,7 @@ def add_new_keys_to_config(efi_dir):
     try:
         with open(current_config, "wb") as f:
             plistlib.dump(current_plist, f)
-        log(f"{GREEN}Novas chaves adicionadas com sucesso ao config.plist!{NC}")
+        log(f"{GREEN}{get_translation('new_keys_added', fallback_to_key=True)}{NC}")
     except Exception as e:
         log(f"{RED}Erro ao salvar o config.plist atualizado: {e}{NC}")
         sys.exit(1)

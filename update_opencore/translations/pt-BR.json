@@ -123,5 +123,6 @@
     "y_n_prompt": "(s/n)",
     "safe_delete_prompt": "Você tem ABSOLUTA certeza que deseja remover esses drivers permanentemente? (y/n): ",
     "drivers_kept": "Drivers conservados intactos na EFI.",
-    "drivers_unused_removed": "Limpeza efetuada! Os drivers não utilizados foram apagados da EFI."
+    "drivers_unused_removed": "Limpeza efetuada! Os drivers não utilizados foram apagados da EFI.",
+    "new_keys_added": "Novas chaves adicionadas com sucesso ao config.plist!"
 }
