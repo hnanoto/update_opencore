@@ -1,7 +1,7 @@
 import os
 import subprocess
 import plistlib
-from logger import log, RED, YELLOW, GREEN, NC
+from logger import log, get_translation, RED, YELLOW, GREEN, NC
 
 def add_new_keys_recursive(current_dict, sample_dict):
     """Recursively adds new keys from sample_dict to current_dict."""
