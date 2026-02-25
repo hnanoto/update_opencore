@@ -26,7 +26,7 @@ def list_all_efi():
         sys.exit(1)
 
     all_efis = []
-    log(f"{YELLOW}Partições FAT32/EFI detectadas (HDs e Pendrives):{NC}")
+    log(f"{YELLOW}{get_translation('detecting_fat32_efi', fallback_to_key=True)}{NC}")
     
     import re
     count = 1
@@ -38,7 +38,7 @@ def list_all_efi():
         parent_disk_match = re.search(r'^(disk\d+)', part)
         parent_disk = parent_disk_match.group(1) if parent_disk_match else part
         
-        disk_name = "Disco Desconhecido"
+        disk_name = get_translation('unknown_disk', fallback_to_key=True)
         is_fat32 = ""
         is_valid = False
         volume_name = ""
@@ -75,7 +75,7 @@ def list_all_efi():
             pass
 
     if not all_efis:
-        log(f"{RED}Nenhuma partição FAT32 ou arquivo EFI foi encontrada no sistema.{NC}")
+        log(f"{RED}{get_translation('no_fat32_efi_found', fallback_to_key=True)}{NC}")
         sys.exit(1)
 
     while True:

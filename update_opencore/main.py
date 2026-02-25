@@ -29,7 +29,7 @@ def main():
 
     while True:
         pre_release = False  # Redefine pre_release para False no início de cada iteração
-        print("\nEscolha uma opção:")
+        print(get_translation('choose_option_menu', fallback_to_key=True))
         
         menu_options = [
             "update_opencore_release",
@@ -63,7 +63,7 @@ def main():
                 cleanup()
                 log(f"{GREEN}{get_translation( 'update_opencore_release')}{NC}")
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 2:
             build_type = "DEBUG"
             # pre_release permanece False
@@ -74,7 +74,7 @@ def main():
                 cleanup()
                 log(f"{GREEN}{get_translation( 'update_opencore_debug')}{NC}")
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 3:
             backup_efi(efi_dir)
             if download_oc(build_type, pre_release):
@@ -82,7 +82,7 @@ def main():
                 cleanup()
                 log(f"{GREEN}{get_translation( 'update_drivers_only')}{NC}")
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 4:
             backup_efi(efi_dir)
             if download_oc(build_type, pre_release):
@@ -90,13 +90,13 @@ def main():
                 cleanup()
                 log(f"{GREEN}{get_translation( 'new_keys_added')}{NC}")
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 5:
             if download_oc(build_type, pre_release):
                 validate_config_plist(efi_dir)
                 cleanup()
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 6:
             backup_efi(efi_dir)
             if download_oc(build_type, pre_release):
@@ -104,19 +104,19 @@ def main():
                 cleanup()
                 log(f"{GREEN}{get_translation('update_boot_files_success')}{NC}")
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 7:
             # Opção para atualizar para a versão pré-lançamento
-            build_type = input("Digite o tipo de build (RELEASE/DEBUG) para a versão pré-lançamento: ").upper()
+            build_type = input(get_translation('oc_pre_release_prompt', fallback_to_key=True)).upper()
             pre_release = True
             backup_efi(efi_dir)
             if download_oc(build_type, pre_release):
                 update_efi(efi_dir, build_type)
                 update_drivers(efi_dir)
                 cleanup()
-                log(f"{GREEN}OpenCore (pré-lançamento) atualizado com sucesso!{NC}")
+                log(f"{GREEN}{get_translation('oc_pre_release_success', fallback_to_key=True)}{NC}")
             else:
-                log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
+                log(f"{RED}{get_translation('download_oc_fail_log', fallback_to_key=True)}{NC}")
         elif choice == 8:
             log(f"{YELLOW}{get_translation( 'exit')}{NC}")
             sys.exit(0)

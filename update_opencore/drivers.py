@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 from datetime import datetime
-from logger import log, RED, YELLOW, GREEN, NC
+from logger import log, get_translation, RED, YELLOW, GREEN, NC
 from downloads import download_hfs_driver
 from config import get_enabled_drivers
 
@@ -120,29 +120,29 @@ def update_drivers(efi_dir):
     removed_count = 0
     
     if not_used_drivers:
-        log(f"{YELLOW}🔍 Foram encontrados {len(not_used_drivers)} drivers na pasta EFI que NÃO estão habilitados no config.plist.{NC}")
+        log(f"{YELLOW}🔍 {get_translation('unused_drivers_prompt', fallback_to_key=True).format(length=len(not_used_drivers))}{NC}")
         for d in not_used_drivers:
             log(f"{YELLOW}   - {d}{NC}")
         
         while True:
-            choice = input(f"{YELLOW}Deseja remover estes drivers permanentemente? (y/n): {NC}").lower()
+            choice = input(f"{YELLOW}{get_translation('safe_delete_prompt', fallback_to_key=True)}{NC}").lower()
             if choice in ['y', 'yes', 's', 'sim']:
-                log(f"{YELLOW}Removendo drivers não utilizados...{NC}")
+                log(f"{YELLOW}{get_translation('prompt_delete_driver', fallback_to_key=True)}{NC}")
                 for efi_driver in not_used_drivers:
                     efi_driver_path = os.path.join(efi_drivers_dir, efi_driver)
-                    log(f"{YELLOW}🗑️ Removendo driver: {efi_driver}{NC}")
+                    log(f"{YELLOW}🗑️ {get_translation('removing_driver', fallback_to_key=True).format(driver=efi_driver)}{NC}")
                     try:
                         os.remove(efi_driver_path)
                         removed_count += 1
                     except Exception as e:
-                        log(f"{RED}❌ Erro ao remover {efi_driver}: {e}{NC}")
+                        log(f"{RED}❌ {get_translation('driver_remove_error', fallback_to_key=True).format(driver=efi_driver, e=e)}{NC}")
                         sys.exit(1)
                 break
             elif choice in ['n', 'no', 'nao', 'não']:
-                log(f"{GREEN}Mantendo os drivers não utilizados.{NC}")
+                log(f"{GREEN}{get_translation('drivers_kept', fallback_to_key=True)}{NC}")
                 break
             else:
-                log(f"{RED}Opção inválida.{NC}")
+                log(f"{RED}{get_translation('invalid_option', fallback_to_key=True)}{NC}")
 
     # Calcula total de drivers atualizados (incluindo HfsPlus.efi)
     total_updated = updated_count

@@ -1,14 +1,15 @@
 import shutil
-from logger import log, RED, YELLOW, GREEN, NC
+import sys
+from logger import log, get_translation, RED, YELLOW, GREEN, NC
 
 def check_dependencies():
     """Verifica as dependências."""
-    log(f"{YELLOW}Verificando dependências...{NC}")
+    log(f"{YELLOW}{get_translation('dependencies_check', fallback_to_key=True)}{NC}")
     dependencies = ["curl", "unzip", "python3"]
     for cmd in dependencies:
         if not shutil.which(cmd):
-            log(f"{RED}Erro: Dependência '{cmd}' não encontrada.{NC}")
+            log(f"{RED}{get_translation('dependency_not_found', fallback_to_key=True).format(cmd=cmd)}{NC}")
             if cmd == "python3":
-                log(f"{YELLOW}O Python 3 é necessário para o script. Instale-o através do Homebrew com 'brew install python3'.{NC}")
+                log(f"{YELLOW}{get_translation('python3_needed', fallback_to_key=True)}{NC}")
             sys.exit(1)
-    log(f"{GREEN}Todas as dependências estão disponíveis.{NC}")
+    log(f"{GREEN}{get_translation('dependencies_success', fallback_to_key=True)}{NC}")

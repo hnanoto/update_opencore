@@ -1,20 +1,18 @@
 import os
 import shutil
-from logger import log, YELLOW, GREEN, NC
+from logger import log, get_translation, RED, YELLOW, GREEN, NC
 
 def cleanup():
-    """Limpa arquivos temporários."""
-    log(f"{YELLOW}Limpando arquivos temporários...{NC}")
-    try:
-        os.remove("OpenCore.zip")
-    except FileNotFoundError:
-        pass
-    try:
-        shutil.rmtree("OpenCore")
-    except FileNotFoundError:
-        pass
-    try:
-        os.remove(os.path.join(os.path.dirname(os.path.abspath(__file__)), "add_new_keys.py"))
-    except FileNotFoundError:
-        pass
-    log(f"{GREEN}Limpeza concluída.{NC}")
+    """Remove o diretório baixado e o arquivo ZIP original."""
+    log(f"{YELLOW}{get_translation('cleaning_temp_files', fallback_to_key=True)}{NC}")
+    if os.path.exists("OpenCore"):
+        try:
+            shutil.rmtree("OpenCore")
+        except Exception as e:
+            log(f"{RED}Erro ao remover o diretório 'OpenCore': {e}{NC}")
+    if os.path.exists("OpenCore.zip"):
+        try:
+            os.remove("OpenCore.zip")
+        except Exception as e:
+            log(f"{RED}Erro ao remover 'OpenCore.zip': {e}{NC}")
+    log(f"{GREEN}{get_translation('cleaning_done', fallback_to_key=True)}{NC}")

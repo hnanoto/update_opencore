@@ -43,15 +43,15 @@ def get_latest_opencore_version_fallback():
         response = requests.get("https://github.com/acidanthera/OpenCorePkg/releases/latest", allow_redirects=True, timeout=10)
         tag = response.url.split("/")[-1]
         if tag and tag != "latest":
-            log(f"{GREEN}Fallback Inteligente ativado: Versão {tag} recuperada com sucesso!{NC}")
+            log(f"{GREEN}{get_translation('smart_fallback_active', fallback_to_key=True).format(tag=tag)}{NC}")
             return tag
     except Exception as fallback_e:
-        log(f"{RED}O Fallback Inteligente também falhou: {fallback_e}{NC}")
+        log(f"{RED}{get_translation('smart_fallback_failed', fallback_to_key=True).format(fallback_e=fallback_e)}{NC}")
     return "Desconhecida"
 
 def download_oc(build_type="RELEASE", pre_release=False):
     """Baixa e extrai a versão Release ou Debug do OpenCore, com Fallback Inteligente."""
-    log(f"{YELLOW}Baixando OpenCore versão {build_type}...{NC}")
+    log(f"{YELLOW}{get_translation('downloading_oc_version', fallback_to_key=True).format(build_type=build_type)}{NC}")
     oc_url = None
     oc_sha256_url = None
     
@@ -67,7 +67,7 @@ def download_oc(build_type="RELEASE", pre_release=False):
                     break
 
             if not latest_pre_release:
-                log(f"{RED}Erro: Não foi possível encontrar uma versão pré-lançamento do OpenCore.{NC}")
+                log(f"{RED}{get_translation('latest_pre_release_not_found', fallback_to_key=True)}{NC}")
                 return False
 
             for asset in latest_pre_release["assets"]:
@@ -77,10 +77,10 @@ def download_oc(build_type="RELEASE", pre_release=False):
                     break
 
             if not oc_url:
-                log(f"{RED}Erro: Não foi possível obter o link da versão pré-lançamento {build_type}.{NC}")
+                log(f"{RED}{get_translation('latest_pre_release_link_error', fallback_to_key=True).format(build_type=build_type)}{NC}")
                 return False
                 
-            log(f"Link de download do OpenCore pré-lançamento {build_type} encontrado: {oc_url}")
+            log(f"{get_translation('pre_release_link_found', fallback_to_key=True).format(build_type=build_type, oc_url=oc_url)}")
         else:
             try:
                 # Tenta API Primária
@@ -94,29 +94,29 @@ def download_oc(build_type="RELEASE", pre_release=False):
                 
                 if not oc_url:
                     raise Exception("URL não localizada na payload oficial.")
-                log(f"Link de download via API encontrado: {oc_url}")
+                log(f"{get_translation('api_link_found', fallback_to_key=True).format(oc_url=oc_url)}")
                 
             except requests.exceptions.HTTPError as e:
                 if e.response is not None and e.response.status_code == 403:
-                    log(f"{YELLOW}Aviso: Limite de requisições da API do GitHub (403 Rate Limit) atingido.{NC}")
+                    log(f"{YELLOW}{get_translation('api_rate_limit_warning', fallback_to_key=True)}{NC}")
                     raise e  # Joga para o fallback
                 else:
                     raise e
 
     except Exception as e:
         # Iniciando o Fallback Inteligente em caso de falhas da API (principalmente 403 Rate Limit)
-        log(f"{YELLOW}Iniciando mecanismo de Fallback Inteligente para download...{NC}")
+        log(f"{YELLOW}{get_translation('smart_fallback_init', fallback_to_key=True)}{NC}")
         if not pre_release:  # Fallbacks para latest_release funcionam deduzindo o nome do ZIP
             tag = get_latest_opencore_version_fallback()
             if tag != "Desconhecida":
                 oc_url = f"https://github.com/acidanthera/OpenCorePkg/releases/download/{tag}/OpenCore-{tag}-{build_type}.zip"
                 oc_sha256_url = f"{oc_url}.sha256"
-                log(f"Link gerado por Fallback Inteligente: {oc_url}")
+                log(f"{get_translation('smart_fallback_link', fallback_to_key=True).format(oc_url=oc_url)}")
             else:
-                log(f"{RED}Erro crítico: Fallback falhou e a API oficial está bloqueada.{NC}")
+                log(f"{RED}{get_translation('smart_fallback_error', fallback_to_key=True)}{NC}")
                 sys.exit(1)
         else:
-            log(f"{RED}Erro crítico: Não existe Fallback Inteligente para versões pre-release ao sofrer Rate Limit. Tente mais tarde.{NC}")
+            log(f"{RED}{get_translation('smart_fallback_unsupported_pre', fallback_to_key=True)}{NC}")
             sys.exit(1)
 
     # Passando para a fase de Checksum
@@ -126,7 +126,7 @@ def download_oc(build_type="RELEASE", pre_release=False):
         expected_checksum = sha256_response.text.strip().split()[0]
         verificar_checksum = True
     except requests.exceptions.RequestException as e:
-        log(f"{YELLOW}Não foi possível obter o checksum SHA-256. A verificação será pulada. Erro: {e}{NC}")
+        log(f"{YELLOW}{get_translation('checksum_error_skip', fallback_to_key=True).format(e=e)}{NC}")
         verificar_checksum = False
         expected_checksum = None
 
@@ -139,7 +139,7 @@ def download_oc(build_type="RELEASE", pre_release=False):
         
         # Correção da barra de progresso caso tamanho não venha no cabeçalho
         if total_size_in_bytes == 0:
-            log(f"{YELLOW}Tamanho não especificado pelo servidor, baixando...{NC}")
+            log(f"{YELLOW}{get_translation('size_not_specified', fallback_to_key=True)}{NC}")
             progress_bar = tqdm(unit='iB', unit_scale=True, desc=f"Baixando OpenCore {build_type}")
         else:
             progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True, desc=f"Baixando OpenCore {build_type}")
@@ -151,7 +151,7 @@ def download_oc(build_type="RELEASE", pre_release=False):
         progress_bar.close()
 
         if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
-            log(f"{RED}Erro: Tamanho do download não corresponde. Arquivo pode estar corrompido.{NC}")
+            log(f"{RED}{get_translation('download_size_mismatch', fallback_to_key=True)}{NC}")
             sys.exit(1)
             
     except requests.exceptions.RequestException as e:
@@ -161,10 +161,10 @@ def download_oc(build_type="RELEASE", pre_release=False):
     if verificar_checksum:
         downloaded_checksum = calculate_sha256("OpenCore.zip")
         if downloaded_checksum != expected_checksum:
-            log(f"{RED}Erro fatal: O Checksum SHA-256 do arquivo baixado ({downloaded_checksum}) não bate com o esperado ({expected_checksum}). O arquivo pode estar comprometido!{NC}")
+            log(f"{RED}{get_translation('checksum_fatal_error', fallback_to_key=True).format(downloaded_checksum=downloaded_checksum, expected_checksum=expected_checksum)}{NC}")
             sys.exit(1)
         else:
-            log(f"{GREEN}Checksum SHA-256 verificado com super sucesso.{NC}")
+            log(f"{GREEN}{get_translation('checksum_verified_super', fallback_to_key=True)}{NC}")
 
     if not os.path.isfile("OpenCore.zip"):
         log(f"{RED}{get_translation('download_fail_zip')}{NC}")
@@ -182,7 +182,7 @@ def download_oc(build_type="RELEASE", pre_release=False):
         log(f"{RED}{get_translation('extract_error')}{NC}")
         sys.exit(1)
         
-    log(f"{GREEN}OpenCore versão {build_type} baixado e extraído de forma 100% segura.{NC}")
+    log(f"{GREEN}{get_translation('oc_download_extract_success', fallback_to_key=True).format(build_type=build_type)}{NC}")
     return True
 
 def get_latest_opencore_version():
@@ -192,5 +192,5 @@ def get_latest_opencore_version():
         response.raise_for_status()
         return response.json()["tag_name"]
     except Exception as e:
-        log(f"{YELLOW}Falha ao checar visão via API (pode ser Limit Rate). Tentando método Fallback Inteligente...{NC}")
+        log(f"{YELLOW}{get_translation('chk_version_api_err', fallback_to_key=True)}{NC}")
         return get_latest_opencore_version_fallback()
