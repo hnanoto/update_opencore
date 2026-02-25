@@ -49,25 +49,42 @@ def list_all_efi():
     
     count = 1
     for part in raw_parts:
-        parent_disk = part[:part.rfind("s")]
+        if not part.startswith("disk"):
+            continue
+            
+        # Extrai corretamente o número do disco primário, ignorando subpartições (evita 'Could not find disk')
+        parent_disk = part.split('s')[0]
         disk_name = "Disco Desconhecido"
         is_fat32 = ""
         is_valid = False
+        volume_name = ""
+        
         try:
-            # Checa se a partição é FAT32 ou EFI (adequada para testes via Pendrive ou Boot principal)
-            part_info = subprocess.check_output(["diskutil", "info", part]).decode("utf-8").lower()
-            if "fat32" in part_info or "ms-dos" in part_info or "efi" in part_info:
+            # Checa se a partição é FAT32 ou EFI, omitindo erros se disco ilegível
+            part_info = subprocess.check_output(["diskutil", "info", part], stderr=subprocess.DEVNULL).decode("utf-8")
+            part_info_lower = part_info.lower()
+            if "fat32" in part_info_lower or "ms-dos" in part_info_lower or "efi" in part_info_lower:
                 is_fat32 = " (FAT32)"
                 is_valid = True
                 
-            if is_valid:
-                # Recupera o nome amigável de hardware do disco pai (ex: SanDisk, WD Black)
-                parent_info = subprocess.check_output(["diskutil", "info", parent_disk]).decode("utf-8")
-                media_name = [l.strip() for l in parent_info.splitlines() if "Device / Media Name:" in l]
-                if media_name:
-                    disk_name = media_name[0].split(":", 1)[1].strip()
+                # Extrai o "Volume Name" real da partição (ex: TESTE CLOVER, UNTITLED)
+                v_lines = [l.strip() for l in part_info.splitlines() if "Volume Name:" in l]
+                if v_lines:
+                    v_name = v_lines[0].split(":", 1)[1].strip()
+                    if v_name and v_name != "Not applicable (no file system)" and v_name != "Not applicable (not mounted)":
+                        volume_name = f" [{v_name}]"
                 
-                log(f"{count}. {part} - {disk_name}{is_fat32}")
+            if is_valid:
+                # Recupera o nome físico de hardware do disco pai (ex: SanDisk, WD Black)
+                try:
+                    parent_info = subprocess.check_output(["diskutil", "info", parent_disk], stderr=subprocess.DEVNULL).decode("utf-8")
+                    media_name = [l.strip() for l in parent_info.splitlines() if "Device / Media Name:" in l]
+                    if media_name:
+                        disk_name = media_name[0].split(":", 1)[1].strip()
+                except Exception:
+                    pass
+                
+                log(f"{count}. {part} - {disk_name}{volume_name}{is_fat32}")
                 all_efis.append(part)
                 count += 1
         except Exception:
