@@ -47,13 +47,16 @@ def list_all_efi():
     all_efis = []
     log(f"{YELLOW}Partições FAT32/EFI detectadas (HDs e Pendrives):{NC}")
     
+    import re
     count = 1
     for part in raw_parts:
         if not part.startswith("disk"):
             continue
             
-        # Extrai corretamente o número do disco primário, ignorando subpartições (evita 'Could not find disk')
-        parent_disk = part.split('s')[0]
+        # Extrai corretamente o disco raiz (ex: disk0s1 -> disk0, disk11s3s1 -> disk11)
+        parent_disk_match = re.search(r'^(disk\d+)', part)
+        parent_disk = parent_disk_match.group(1) if parent_disk_match else part
+        
         disk_name = "Disco Desconhecido"
         is_fat32 = ""
         is_valid = False
