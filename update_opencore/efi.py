@@ -35,7 +35,7 @@ def list_all_efi():
     log(f"{YELLOW}Localizando todas as partições EFI no sistema...{NC}")
     try:
         diskutil_output = subprocess.check_output(["diskutil", "list"]).decode("utf-8")
-        all_efis = [line.split()[-1] for line in diskutil_output.splitlines() if "EFI" in line]
+        all_efis = [line.split()[-1] for line in diskutil_output.splitlines() if "EFI" in line and "disk" in line.split()[-1]]
     except subprocess.CalledProcessError:
         log(f"{RED}{get_translation('efi_detect_error')}{NC}")
         sys.exit(1)
@@ -46,7 +46,24 @@ def list_all_efi():
 
     log(f"{YELLOW}Partições EFI detectadas:{NC}")
     for i, efi_part in enumerate(all_efis):
-        log(f"{i + 1}. {efi_part}")
+        parent_disk = efi_part[:efi_part.rfind("s")] if "s" in efi_part else efi_part
+        disk_name = "Disco Desconhecido"
+        is_fat32 = ""
+        try:
+            # Pega o nome do disco (HD/Pendrive)
+            parent_info = subprocess.check_output(["diskutil", "info", parent_disk]).decode("utf-8")
+            media_name = [l.strip() for l in parent_info.splitlines() if "Device / Media Name:" in l]
+            if media_name:
+                disk_name = media_name[0].split(":", 1)[1].strip()
+            
+            # Checa se é FAT32
+            part_info = subprocess.check_output(["diskutil", "info", efi_part]).decode("utf-8").lower()
+            if "fat32" in part_info or "ms-dos" in part_info or "efi" in part_info:
+                is_fat32 = " (FAT32)"
+        except Exception:
+            pass
+            
+        log(f"{i + 1}. {efi_part} - {disk_name}{is_fat32}")
 
     while True:
         try:
