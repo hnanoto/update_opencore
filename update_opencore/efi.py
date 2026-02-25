@@ -75,10 +75,16 @@ def list_all_efi():
                                 # Sai do loop interno para solicitar nova seleção de partição se a EFI não for válida
                                 break
                         else:
-                            log(f"{RED}{get_translation('efi_partition_error')}{NC}")
-                            log(f"{YELLOW}{get_translation('mount_manualy')}{NC}")
-                            log(f"{YELLOW}Aguardando 5 segundos...{NC}")
-                            time.sleep(5)  # Aguarda 5 segundos antes de verificar novamente
+                            log(f"{YELLOW}Tentando montar a partição EFI ({efi_part}) automaticamente...{NC}")
+                            try:
+                                subprocess.run(["diskutil", "mount", efi_part], check=True, capture_output=True)
+                                time.sleep(1) # Aguarda o sistema registrar a montagem
+                                continue
+                            except subprocess.CalledProcessError:
+                                log(f"{RED}{get_translation('efi_partition_error')}{NC}")
+                                log(f"{YELLOW}{get_translation('mount_manualy')}{NC}")
+                                log(f"{YELLOW}Aguardando 5 segundos...{NC}")
+                                time.sleep(5)  # Aguarda 5 segundos antes de verificar novamente
                     except subprocess.CalledProcessError:
                         log(f"{RED}Erro: Falha ao executar 'diskutil info {efi_part}'.{NC}")
                         sys.exit(1)

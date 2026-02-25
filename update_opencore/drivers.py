@@ -115,19 +115,34 @@ def update_drivers(efi_dir):
         else:
             log(f"{YELLOW}[{i}/{len(sorted_drivers)}] Driver {new_driver} não está habilitado no config.plist. Pulando.{NC}")
 
-    # Remove drivers não utilizados
-    log(f"{YELLOW}Removendo drivers não utilizados da pasta {efi_drivers_dir}...{NC}")
+    # Pergunta se deseja remover drivers não utilizados
+    not_used_drivers = [d for d in os.listdir(efi_drivers_dir) if d.endswith(".efi") and d not in processed_drivers]
     removed_count = 0
-    for efi_driver in os.listdir(efi_drivers_dir):
-        if efi_driver.endswith(".efi") and efi_driver not in processed_drivers:
-            efi_driver_path = os.path.join(efi_drivers_dir, efi_driver)
-            log(f"{YELLOW}🗑️ Removendo driver não utilizado: {efi_driver}{NC}")
-            try:
-                os.remove(efi_driver_path)
-                removed_count += 1
-            except Exception as e:
-                log(f"{RED}❌ Erro ao remover {efi_driver}: {e}{NC}")
-                sys.exit(1)
+    
+    if not_used_drivers:
+        log(f"{YELLOW}🔍 Foram encontrados {len(not_used_drivers)} drivers na pasta EFI que NÃO estão habilitados no config.plist.{NC}")
+        for d in not_used_drivers:
+            log(f"{YELLOW}   - {d}{NC}")
+        
+        while True:
+            choice = input(f"{YELLOW}Deseja remover estes drivers permanentemente? (y/n): {NC}").lower()
+            if choice in ['y', 'yes', 's', 'sim']:
+                log(f"{YELLOW}Removendo drivers não utilizados...{NC}")
+                for efi_driver in not_used_drivers:
+                    efi_driver_path = os.path.join(efi_drivers_dir, efi_driver)
+                    log(f"{YELLOW}🗑️ Removendo driver: {efi_driver}{NC}")
+                    try:
+                        os.remove(efi_driver_path)
+                        removed_count += 1
+                    except Exception as e:
+                        log(f"{RED}❌ Erro ao remover {efi_driver}: {e}{NC}")
+                        sys.exit(1)
+                break
+            elif choice in ['n', 'no', 'nao', 'não']:
+                log(f"{GREEN}Mantendo os drivers não utilizados.{NC}")
+                break
+            else:
+                log(f"{RED}Opção inválida.{NC}")
 
     # Calcula total de drivers atualizados (incluindo HfsPlus.efi)
     total_updated = updated_count

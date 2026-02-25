@@ -6,7 +6,7 @@ from dependencies import check_dependencies
 from efi import list_all_efi, get_installed_opencore_version, update_efi, update_boot_files
 from downloads import download_oc, get_latest_opencore_version, download_hfs_driver
 from drivers import update_drivers
-from config import add_new_keys_to_config, create_python_script
+from config import add_new_keys_to_config
 from validate import validate_config_plist
 from backup import backup_efi
 from cleanup import cleanup
@@ -60,7 +60,6 @@ def main():
             if download_oc(build_type, pre_release):
                 update_efi(efi_dir, build_type)
                 update_drivers(efi_dir)
-                create_python_script()
                 cleanup()
                 log(f"{GREEN}{get_translation( 'update_opencore_release')}{NC}")
             else:
@@ -72,7 +71,6 @@ def main():
             if download_oc(build_type, pre_release):
                 update_efi(efi_dir, build_type)
                 update_drivers(efi_dir)
-                create_python_script()
                 cleanup()
                 log(f"{GREEN}{get_translation( 'update_opencore_debug')}{NC}")
             else:
@@ -86,7 +84,6 @@ def main():
             else:
                 log(f"{RED}Falha ao baixar o OpenCore. Verifique o log para mais detalhes.{NC}")
         elif choice == 4:
-            create_python_script()
             backup_efi(efi_dir)
             if download_oc(build_type, pre_release):
                 add_new_keys_to_config(efi_dir)
@@ -116,7 +113,6 @@ def main():
             if download_oc(build_type, pre_release):
                 update_efi(efi_dir, build_type)
                 update_drivers(efi_dir)
-                create_python_script()
                 cleanup()
                 log(f"{GREEN}OpenCore (pré-lançamento) atualizado com sucesso!{NC}")
             else:

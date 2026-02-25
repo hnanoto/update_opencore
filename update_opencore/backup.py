@@ -27,6 +27,16 @@ def backup_efi(efi_dir):
     try:
         shutil.copytree(os.path.join(efi_dir, "EFI"), backup_dir)
         log(f"{GREEN}Backup criado com sucesso.{NC}")
+        
+        # Rotacionar backups: manter apenas os 2 mais recentes
+        backups = [d for d in os.listdir(efi_dir) if d.startswith("EFI-Backup-") and os.path.isdir(os.path.join(efi_dir, d))]
+        backups.sort()
+        if len(backups) > 2:
+            log(f"{YELLOW}Removendo backups antigos para economizar espaço...{NC}")
+            for old_backup in backups[:-2]:
+                old_backup_path = os.path.join(efi_dir, old_backup)
+                log(f"{YELLOW}Removendo {old_backup_path}...{NC}")
+                shutil.rmtree(old_backup_path)
     except Exception as e:
-        log(f"{RED}Erro ao criar o backup: {e}{NC}")
+        log(f"{RED}Erro ao criar ou rotacionar o backup: {e}{NC}")
         sys.exit(1)

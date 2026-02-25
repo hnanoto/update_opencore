@@ -120,6 +120,12 @@ def download_oc(build_type="RELEASE", pre_release=False):
             else:
                 log(f"{GREEN}Checksum SHA-256 verificado com sucesso.{NC}")
 
+    except requests.exceptions.HTTPError as e:
+        if e.response is not None and e.response.status_code == 403:
+            log(f"{RED}Erro 403: Limite da API do GitHub atingido (Rate Limit). Tente novamente mais tarde ou mude de rede.{NC}")
+        else:
+            log(f"{RED}{get_translation('download_fail')}: {e}{NC}")
+        sys.exit(1)
     except requests.exceptions.RequestException as e:
         log(f"{RED}{get_translation('download_fail')}: {e}{NC}")
         sys.exit(1)
@@ -149,6 +155,12 @@ def get_latest_opencore_version():
         response = requests.get("https://api.github.com/repos/acidanthera/OpenCorePkg/releases/latest")
         response.raise_for_status()
         return response.json()["tag_name"]
+    except requests.exceptions.HTTPError as e:
+        if e.response is not None and e.response.status_code == 403:
+            log(f"{RED}Erro 403: Limite da API do GitHub atingido na verificação de versão.{NC}")
+        else:
+            log(f"{RED}Erro: Não foi possível obter a versão mais recente do OpenCore: {e}{NC}")
+        return "Desconhecida"
     except requests.exceptions.RequestException as e:
         log(f"{RED}Erro: Não foi possível obter a versão mais recente do OpenCore: {e}{NC}")
         return "Desconhecida"
