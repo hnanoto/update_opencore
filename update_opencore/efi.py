@@ -35,35 +35,47 @@ def list_all_efi():
     log(f"{YELLOW}Localizando todas as partições EFI no sistema...{NC}")
     try:
         diskutil_output = subprocess.check_output(["diskutil", "list"]).decode("utf-8")
-        all_efis = [line.split()[-1] for line in diskutil_output.splitlines() if "EFI" in line and "disk" in line.split()[-1]]
+        raw_parts = []
+        for line in diskutil_output.splitlines():
+            s = line.split()
+            if s and "disk" in s[-1] and "s" in s[-1]:
+                raw_parts.append(s[-1])
     except subprocess.CalledProcessError:
         log(f"{RED}{get_translation('efi_detect_error')}{NC}")
         sys.exit(1)
 
-    if not all_efis:
-        log(f"{RED}{get_translation('no_efi_found')}{NC}")
-        sys.exit(1)
-
-    log(f"{YELLOW}Partições EFI detectadas:{NC}")
-    for i, efi_part in enumerate(all_efis):
-        parent_disk = efi_part[:efi_part.rfind("s")] if "s" in efi_part else efi_part
+    all_efis = []
+    log(f"{YELLOW}Partições FAT32/EFI detectadas (HDs e Pendrives):{NC}")
+    
+    count = 1
+    for part in raw_parts:
+        parent_disk = part[:part.rfind("s")]
         disk_name = "Disco Desconhecido"
         is_fat32 = ""
+        is_valid = False
         try:
-            # Pega o nome do disco (HD/Pendrive)
-            parent_info = subprocess.check_output(["diskutil", "info", parent_disk]).decode("utf-8")
-            media_name = [l.strip() for l in parent_info.splitlines() if "Device / Media Name:" in l]
-            if media_name:
-                disk_name = media_name[0].split(":", 1)[1].strip()
-            
-            # Checa se é FAT32
-            part_info = subprocess.check_output(["diskutil", "info", efi_part]).decode("utf-8").lower()
+            # Checa se a partição é FAT32 ou EFI (adequada para testes via Pendrive ou Boot principal)
+            part_info = subprocess.check_output(["diskutil", "info", part]).decode("utf-8").lower()
             if "fat32" in part_info or "ms-dos" in part_info or "efi" in part_info:
                 is_fat32 = " (FAT32)"
+                is_valid = True
+                
+            if is_valid:
+                # Recupera o nome amigável de hardware do disco pai (ex: SanDisk, WD Black)
+                parent_info = subprocess.check_output(["diskutil", "info", parent_disk]).decode("utf-8")
+                media_name = [l.strip() for l in parent_info.splitlines() if "Device / Media Name:" in l]
+                if media_name:
+                    disk_name = media_name[0].split(":", 1)[1].strip()
+                
+                log(f"{count}. {part} - {disk_name}{is_fat32}")
+                all_efis.append(part)
+                count += 1
         except Exception:
             pass
-            
-        log(f"{i + 1}. {efi_part} - {disk_name}{is_fat32}")
+
+    if not all_efis:
+        log(f"{RED}Nenhuma partição FAT32 ou arquivo EFI foi encontrada no sistema.{NC}")
+        sys.exit(1)
 
     while True:
         try:
