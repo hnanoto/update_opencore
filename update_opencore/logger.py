@@ -30,22 +30,36 @@ def load_translations():
             except Exception as e:
                 log(f"{RED}Erro ao carregar traduções para {lang}: {e}{NC}")
 
+import sys
+
 def get_system_language():
-    """Detecta o idioma preferido do usuário usando a biblioteca locale."""
+    """Detecta o idioma preferido do usuário usando macOS defaults e fallback para locale."""
     try:
+        # No macOS, o terminal frequentemente mascara a linguagem real como 'C' ou 'C.UTF-8'.
+        # Lendo diretamente dos AppleLanguages garantimos o idioma nativo primário.
+        if sys.platform.startswith("darwin"):
+            import subprocess
+            import re
+            try:
+                apple_lang = subprocess.check_output(['defaults', 'read', '-g', 'AppleLanguages'], stderr=subprocess.DEVNULL).decode('utf-8')
+                match = re.search(r'"([^"]+)"', apple_lang)
+                if match:
+                    return match.group(1)
+            except Exception:
+                pass
+
         lang, encoding = locale.getlocale()
-        if lang:
+        if lang and lang != 'C':
             return lang
-        else:
-            # Tenta obter o idioma usando variáveis de ambiente
-            lang = os.environ.get('LANG') or os.environ.get('LC_ALL')
-            if lang:
-                return lang.split('.')[0]  # Retorna apenas a parte do idioma (ex: en_US -> en)
-            else:
-                return "en"  # Inglês como padrão se não for detectado
+            
+        lang = os.environ.get('LANG') or os.environ.get('LC_ALL')
+        if lang and lang != 'C.UTF-8' and lang != 'C':
+            return lang.split('.')[0]
+            
     except Exception as e:
-        log(f"{RED}Erro ao detectar o idioma do sistema: {e}{NC}")
-        return "en"
+        pass
+        
+    return "en"
 
 def log(message):
     """Registra a mensagem no arquivo de log e a imprime na tela."""

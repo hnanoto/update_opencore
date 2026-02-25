@@ -13,25 +13,6 @@ def list_all_efi():
     global EFI_DIR
     EFI_DIR = ""  # Reseta EFI_DIR
 
-    log(f"{YELLOW}{get_translation('environment_check')}{NC}")
-    if not sys.platform.startswith("darwin"):
-        log(f"{RED}{get_translation('environment_error_macos')}{NC}")
-        sys.exit(1)
-    if os.geteuid() != 0:
-        log(f"{YELLOW}{get_translation('environment_error_root')}{NC}")
-        os.execvp("sudo", ["sudo"] + sys.argv)
-    log(f"{GREEN}{get_translation('environment_success')}{NC}")
-
-    log(f"{YELLOW}{get_translation('dependencies_check')}{NC}")
-    dependencies = ["curl", "unzip", "python3"]
-    for cmd in dependencies:
-        if not shutil.which(cmd):
-            log(f"{RED}{get_translation('dependency_not_found', True).format(cmd=cmd)}{NC}")
-            if cmd == "python3":
-                log(f"{YELLOW}{get_translation('python3_needed')}{NC}")
-            sys.exit(1)
-    log(f"{GREEN}{get_translation('dependencies_success')}{NC}")
-
     log(f"{YELLOW}Localizando todas as partições EFI no sistema...{NC}")
     try:
         diskutil_output = subprocess.check_output(["diskutil", "list"]).decode("utf-8")
