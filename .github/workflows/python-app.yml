@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests tqdm plistlib
+        pip install requests tqdm
         if [ -f update_opencore/requirements.txt ]; then pip install -r update_opencore/requirements.txt; fi
         
     - name: Verify Python Syntax
